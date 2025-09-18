@@ -96,94 +96,96 @@ bool gameOver(char board[][3])
 	return(rowCrossed(board) || columnCrossed(board) || diagonalCrossed(board) ); 
 }
 
-int minimax(char board[][3], int depth, bool isAI)
+int minimax(char board[][3], int depth, bool isAI, int alpha, int beta)
 {
-	int score = 0;
-	int bestScore = 0;
-	if (gameOver(board) == true)
-	{
-		if (isAI == true)
-			return -1;
-		else return +1;
-	}
-	else
-	{
-		if(depth < 9)
-		{
-			if(isAI == true)
-			{
-				bestScore = -999;
-				for(int i=0; i<3; i++)
-				{
-					for(int j=0; j<3; j++)
-					{
-						if (board[i][j] == ' ')
-						{
-							board[i][j] = COMPUTERMOVE;
-							score = minimax(board, depth + 1, false);
-							board[i][j] = ' ';
-							if(score > bestScore)
-							{
-								bestScore = score;
-							}
-						}
-					}
-				}
-				return bestScore;
-			}
-			else
-			{
-				bestScore = 999;
-				for (int i = 0; i < 3; i++)
-				{
-					for (int j = 0; j < 3; j++)
-					{
-						if (board[i][j] == ' ')
-						{
-							board[i][j] = HUMANMOVE;
-							score = minimax(board, depth + 1, true);
-							board[i][j] = ' ';
-							if (score < bestScore)
-							{
-								bestScore = score;
-							}
-						}
-					}
-				}
-				return bestScore;
-			}
-		}
-		else
-		{
-			return 0;
-		}
-	}
+    int score = 0;
+    if (gameOver(board) == true)
+    {
+        if (isAI == true)
+            return -1;
+        else 
+            return +1;
+    }
+    else
+    {
+        if(depth < 9)
+        {
+            if(isAI == true)
+            {
+                int bestScore = -999;
+                for(int i=0; i<3; i++)
+                {
+                    for(int j=0; j<3; j++)
+                    {
+                        if (board[i][j] == ' ')
+                        {
+                            board[i][j] = COMPUTERMOVE;
+                            score = minimax(board, depth + 1, false, alpha, beta);
+                            board[i][j] = ' ';
+                            bestScore = max(bestScore, score);
+                            alpha = max(alpha, bestScore);
+                            if (beta <= alpha)
+                                return bestScore;
+                        }
+                    }
+                }
+                return bestScore;
+            }
+            else
+            {
+                int bestScore = 999;
+                for (int i = 0; i < 3; i++)
+                {
+                    for (int j = 0; j < 3; j++)
+                    {
+                        if (board[i][j] == ' ')
+                        {
+                            board[i][j] = HUMANMOVE;
+                            score = minimax(board, depth + 1, true, alpha, beta);
+                            board[i][j] = ' ';
+                            bestScore = min(bestScore, score);
+                            beta = min(beta, bestScore);
+                            if (beta <= alpha)
+                                return bestScore;
+                        }
+                    }
+                }
+                return bestScore;
+            }
+        }
+        else
+        {
+            return 0;
+        }
+    }
 }
+
 
 int bestMove(char board[][3], int moveIndex)
 {
-	int x = -1, y = -1;
-	int score = 0, bestScore = -999;
-	for (int i = 0; i < 3; i++)
-	{
-		for (int j = 0; j < 3; j++)
-		{
-			if (board[i][j] == ' ')
-			{
-				board[i][j] = COMPUTERMOVE;
-				score = minimax(board, moveIndex+1, false);
-				board[i][j] = ' ';
-				if(score > bestScore)
-				{
-					bestScore = score;
-					x = i;
-					y = j;
-				}
-			}
-		}
-	}
-	return x*3+y;
+    int x = -1, y = -1;
+    int score = 0, bestScore = -999;
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            if (board[i][j] == ' ')
+            {
+                board[i][j] = COMPUTERMOVE;
+                score = minimax(board, moveIndex+1, false, -999, 999);
+                board[i][j] = ' ';
+                if(score > bestScore)
+                {
+                    bestScore = score;
+                    x = i;
+                    y = j;
+                }
+            }
+        }
+    }
+    return x*3+y;
 }
+
 
 
 void playTicTacToe(int whoseTurn) 
